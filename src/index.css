@@ -1,0 +1,93 @@
+:root {
+  font-family: 'Space Grotesk', sans-serif;
+  line-height: 1.45;
+  font-weight: 400;
+  color: #fff8ec;
+  background:
+    radial-gradient(circle at top, rgba(255, 213, 93, 0.12), transparent 24%),
+    linear-gradient(180deg, #10231c 0%, #152d24 42%, #1d382d 100%);
+  font-synthesis: none;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  min-width: 20rem;
+  min-height: 100svh;
+}
+
+button,
+a,
+input,
+textarea,
+select {
+  font: inherit;
+}
+
+button {
+  cursor: pointer;
+}
+
+img {
+  display: block;
+  max-width: 100%;
+}
+
+a {
+  color: inherit;
+}
+
+#root {
+  min-height: 100svh;
+}
+
+h1,
+h2,
+h3,
+p {
+  margin: 0;
+}
+
+h1,
+h2,
+h3 {
+  color: #fff8ec;
+  line-height: 0.98;
+}
+
+h1 {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: clamp(3rem, 13vw, 4.6rem);
+  letter-spacing: 0.01em;
+}
+
+h2 {
+  font-family: 'Bebas Neue', sans-serif;
+  font-size: clamp(2rem, 9vw, 2.75rem);
+  letter-spacing: 0.03em;
+}
+
+h3 {
+  font-size: 1.1rem;
+}
+
+p {
+  font-size: 0.94rem;
+}
+
+::selection {
+  background: rgba(255, 211, 93, 0.24);
+  color: #fff8ec;
+}
