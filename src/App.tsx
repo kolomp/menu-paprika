@@ -1,646 +1,453 @@
-import type { CSSProperties, SVGProps } from 'react'
+import { startTransition, useDeferredValue, useEffect, useState } from 'react'
 import {
-  startTransition,
-  useDeferredValue,
-  useEffect,
-  useRef,
-  useState,
-} from 'react'
-import {
+  badgeDescriptions,
+  badgeLabels,
   links,
   localeLabels,
+  localeNames,
   localeTags,
   locales,
-  messages,
+  resolveItemDetails,
+  resolveItemName,
   resolveLocale,
-  rewardPool,
+  sections,
+  uiCopy,
+  type BadgeId,
   type Locale,
-  type ReviewPlatformId,
-  type RewardDefinition,
-  type RewardId,
 } from './content.ts'
-import {
-  getSpinTargetDegrees,
-  pickWeightedSegment,
-  wheelSegments,
-} from './spin.ts'
 import './App.css'
 
-type StepId = 'welcome' | 'spin' | 'gift' | 'review' | 'claim'
+const storageKey = 'paprikaMenuLocaleV1'
 
-type ClaimSnapshot = {
-  createdAt: Date
-  platform: ReviewPlatformId
-  spinNumber: number
-}
-
-type RewardIconProps = {
-  className?: string
-}
-
-const stepOrder: StepId[] = ['welcome', 'spin', 'gift', 'review', 'claim']
-
-const rewardMap = rewardPool.reduce<Record<RewardId, RewardDefinition>>(
-  (accumulator, reward) => {
-    accumulator[reward.id] = reward
-    return accumulator
-  },
-  {} as Record<RewardId, RewardDefinition>,
-)
-
-function GlobeIcon(props: SVGProps<SVGSVGElement>) {
+function MenuIcon() {
   return (
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" {...props}>
-      <circle cx="12" cy="12" r="9" strokeWidth="1.7" />
+    <svg viewBox="0 0 24 24" aria-hidden="true">
       <path
-        d="M3.5 12h17M12 3c2.2 2.4 3.4 5.6 3.4 9S14.2 18.6 12 21M12 3C9.8 5.4 8.6 8.6 8.6 12s1.2 6.6 3.4 9"
-        strokeWidth="1.7"
+        d="M4 7h16M4 12h16M4 17h16"
+        fill="none"
+        stroke="currentColor"
         strokeLinecap="round"
+        strokeWidth="1.9"
       />
     </svg>
   )
 }
 
-function TeaIcon({ className }: RewardIconProps) {
+function CloseIcon() {
   return (
-    <svg viewBox="0 0 24 24" className={className} fill="none">
+    <svg viewBox="0 0 24 24" aria-hidden="true">
       <path
-        d="M9 4.5c0 1-1 1.2-1 2.3 0 1 1 1.4 1 2.4M13 4.5c0 1-1 1.2-1 2.3 0 1 1 1.4 1 2.4"
+        d="m6 6 12 12M18 6 6 18"
+        fill="none"
         stroke="currentColor"
-        strokeWidth="1.5"
         strokeLinecap="round"
+        strokeWidth="1.9"
       />
+    </svg>
+  )
+}
+
+function ChiliIcon() {
+  return (
+    <svg viewBox="0 0 24 24" aria-hidden="true">
       <path
-        d="M6.5 10.5h8.8v5.7c0 2.4-1.9 4.3-4.3 4.3h-.2a4.3 4.3 0 0 1-4.3-4.3v-5.7Z"
-        stroke="currentColor"
-        strokeWidth="1.5"
+        d="M14.7 4.2c.6 1.7.2 3-.9 4 .7-.2 1.5-.1 2.2.3 1.8 1.1 2.2 3.8.9 6.1-1.7 3-5.4 4.3-8.3 2.9-2.8-1.4-3.7-4.6-2-7.2 1-1.5 2.5-2.4 4.1-2.5-.7-1.2-.7-2.6-.1-4 1.5 1.4 3 1.7 4.1.4Z"
         fill="currentColor"
-        fillOpacity="0.1"
       />
       <path
-        d="M15.3 11.4h1.6a2.6 2.6 0 1 1 0 5.2h-1.5"
+        d="M15.8 4.8c-.7.5-1.6.8-2.6.7"
+        fill="none"
         stroke="currentColor"
-        strokeWidth="1.5"
         strokeLinecap="round"
+        strokeWidth="1.5"
       />
     </svg>
   )
 }
 
-function BaklavaIcon({ className }: RewardIconProps) {
+function LeafIcon() {
   return (
-    <svg viewBox="0 0 24 24" className={className} fill="none">
+    <svg viewBox="0 0 24 24" aria-hidden="true">
       <path
-        d="M12 3.5 20 12l-8 8.5L4 12 12 3.5Z"
-        stroke="currentColor"
-        strokeWidth="1.5"
+        d="M19.5 4.5c-5.8 0-10.6 2.7-12.8 7.4-1.2 2.6-.8 5.4.9 7.6 2.3-1 4.3-2.8 5.6-5.2 1.4-2.5 2.1-5.3 2.4-7.5 1.4 1.7 1.9 4 1.3 6.2-.6 2.3-2.2 4.4-4.4 5.9 3.6.3 6.4-1.3 7.7-4.2 1.6-3.5.4-7.8-1.7-10.2Z"
         fill="currentColor"
-        fillOpacity="0.1"
-      />
-      <path
-        d="M12 7.3 16.2 12 12 16.7 7.8 12 12 7.3ZM8.7 8.7l6.6 6.6M15.3 8.7l-6.6 6.6"
-        stroke="currentColor"
-        strokeWidth="1.4"
-        strokeLinecap="round"
-        strokeLinejoin="round"
       />
     </svg>
   )
 }
 
-function CoffeeIcon({ className }: RewardIconProps) {
-  return (
-    <svg viewBox="0 0 24 24" className={className} fill="none">
-      <path
-        d="M7 5.2c0 1.1-.9 1.3-.9 2.4S7 9 7 10M10.2 5.2c0 1.1-.9 1.3-.9 2.4s.9 1.4.9 2.4"
-        stroke="currentColor"
-        strokeWidth="1.5"
-        strokeLinecap="round"
-      />
-      <path
-        d="M4.5 10.5h11v4.8a4.2 4.2 0 0 1-4.2 4.2H8.7a4.2 4.2 0 0 1-4.2-4.2v-4.8Z"
-        stroke="currentColor"
-        strokeWidth="1.5"
-        fill="currentColor"
-        fillOpacity="0.1"
-      />
-      <path
-        d="M15.5 11.3h1.6a2.4 2.4 0 1 1 0 4.8h-1.6"
-        stroke="currentColor"
-        strokeWidth="1.5"
-        strokeLinecap="round"
-      />
-      <path d="M4 20.5h14" stroke="currentColor" strokeWidth="1.5" strokeLinecap="round" />
-    </svg>
-  )
+function BadgeIcon({ badgeId }: { badgeId: BadgeId }) {
+  if (badgeId === 'spicy') {
+    return <ChiliIcon />
+  }
+
+  return <LeafIcon />
 }
 
-function RewardIcon({
-  rewardId,
-  className,
+function BadgePill({
+  badgeId,
+  locale,
 }: {
-  rewardId: RewardId
-  className?: string
+  badgeId: BadgeId
+  locale: Locale
 }) {
-  if (rewardId === 'tea') return <TeaIcon className={className} />
-  if (rewardId === 'baklava') return <BaklavaIcon className={className} />
-  return <CoffeeIcon className={className} />
+  return (
+    <span className={`menu-item__badge menu-item__badge--${badgeId}`}>
+      <BadgeIcon badgeId={badgeId} />
+      <span>{badgeLabels[badgeId][locale]}</span>
+    </span>
+  )
+}
+
+function readStoredLocale(): Locale | null {
+  if (typeof window === 'undefined') return null
+
+  const stored = window.localStorage.getItem(storageKey)
+
+  return locales.find((locale) => locale === stored) ?? null
 }
 
 function App() {
-  const [locale, setLocale] = useState<Locale>(() =>
-    resolveLocale(typeof navigator === 'undefined' ? undefined : navigator.languages),
+  const [locale, setLocale] = useState<Locale>(() => {
+    const stored = readStoredLocale()
+
+    if (stored) return stored
+
+    if (typeof navigator === 'undefined') return 'en'
+
+    return resolveLocale(navigator.languages)
+  })
+  const [isMenuOpen, setIsMenuOpen] = useState(false)
+  const [activeSectionId, setActiveSectionId] = useState(
+    sections.find((section) => section.id !== 'bar')?.id ?? sections[0].id,
   )
-  const [step, setStep] = useState<StepId>('welcome')
-  const [isLanguageOpen, setIsLanguageOpen] = useState(false)
-  const [spinRotation, setSpinRotation] = useState(0)
-  const [isSpinning, setIsSpinning] = useState(false)
-  const [selectedRewardId, setSelectedRewardId] = useState<RewardId | null>(null)
-  const [hasSpun, setHasSpun] = useState(false)
-  const [spinCount, setSpinCount] = useState(0)
-  const [claimSnapshot, setClaimSnapshot] = useState<ClaimSnapshot | null>(null)
-  const [burstSeed, setBurstSeed] = useState(0)
 
   const deferredLocale = useDeferredValue(locale)
-  const copy = messages[deferredLocale]
-  const activeReward = selectedRewardId ? rewardMap[selectedRewardId] : null
-
-  const spinTimeoutRef = useRef<number | null>(null)
-  const storageKey = 'paprikaSpinRewardV1'
-
-  const playSpinSound = () => {
-    try {
-      const AudioContextCtor =
-        window.AudioContext || (window as typeof window & { webkitAudioContext?: AudioContext }).webkitAudioContext
-      if (!AudioContextCtor) {
-        const fallback = new Audio(
-          'data:audio/wav;base64,UklGRoQAAABXQVZFZm10IBAAAAABAAEARKwAABCxAgAEABAAZGF0YVAAAAD//w8PDw8PDw8PDw8PDw8PDw8PDw8PDw8PDw8PDw8PDw8PDw8PDw8PDw8PDw8PDw8PDw8PDw8PDw8PDw8PDw8PDw8PDw8PDw8PDw8PDw8PDw8PDw8PDw8PDw8PDw8PDw8PDw8PDw8PDw8PDw8PDw8PDw8PDw8PDw8PDw8PDw8PDw8PDw8PDw8PDw8PDw8PDw8PDw8PDw8PDw8PDw8PDw8PDw8PDw8PDw8PDw8PDw8PDw8PDw8PDw8PDw8PDw8PDw8PDw8PDw8PDw8PDw8PDw8PDw8PDw8PDw8PDw8PDw8PDw8PDw8PDw8PDw8PDw8PDw8PDw8PDw8PDw8PDw8PDw8PDw8PDw8PDw8PDw8PDw8PDw8PDw8PDw8PDw8PDw8PDw8PDw8PDw8PDw8PDw8PDw8P'
-        )
-        fallback.play().catch(() => undefined)
-        return
-      }
-
-      const audioContext = new AudioContextCtor()
-      const oscillator = audioContext.createOscillator()
-      const gain = audioContext.createGain()
-
-      oscillator.type = 'triangle'
-      oscillator.frequency.setValueAtTime(520, audioContext.currentTime)
-      oscillator.frequency.exponentialRampToValueAtTime(220, audioContext.currentTime + 0.6)
-
-      gain.gain.setValueAtTime(0.0001, audioContext.currentTime)
-      gain.gain.exponentialRampToValueAtTime(0.2, audioContext.currentTime + 0.02)
-      gain.gain.exponentialRampToValueAtTime(0.0001, audioContext.currentTime + 0.65)
-
-      oscillator.connect(gain).connect(audioContext.destination)
-      oscillator.start()
-      oscillator.stop(audioContext.currentTime + 0.7)
-      oscillator.onended = () => {
-        audioContext.close()
-      }
-    } catch {
-      // Ignore audio errors or blocked autoplay.
-      try {
-        const fallback = new Audio(
-          'data:audio/wav;base64,UklGRoQAAABXQVZFZm10IBAAAAABAAEARKwAABCxAgAEABAAZGF0YVAAAAD//w8PDw8PDw8PDw8PDw8PDw8PDw8PDw8PDw8PDw8PDw8PDw8PDw8PDw8PDw8PDw8PDw8PDw8PDw8PDw8PDw8PDw8PDw8PDw8PDw8PDw8PDw8PDw8PDw8PDw8PDw8PDw8PDw8PDw8PDw8PDw8PDw8PDw8PDw8PDw8PDw8PDw8PDw8PDw8PDw8PDw8PDw8PDw8PDw8PDw8PDw8PDw8PDw8PDw8PDw8PDw8PDw8PDw8PDw8PDw8PDw8PDw8PDw8PDw8PDw8PDw8PDw8PDw8PDw8PDw8PDw8PDw8PDw8PDw8PDw8PDw8PDw8PDw8PDw8PDw8PDw8PDw8PDw8PDw8PDw8PDw8PDw8PDw8PDw8PDw8PDw8PDw8PDw8PDw8PDw8PDw8PDw8PDw8PDw8PDw8PDw8PDw8PDw8PDw8PDw8PDw8PDw8PDw8PDw8P'
-        )
-        fallback.play().catch(() => undefined)
-      } catch {
-        // ignore
-      }
-    }
-  }
-
-  useEffect(() => {
-    try {
-      const storedRaw = window.localStorage.getItem(storageKey)
-
-      if (!storedRaw) return
-
-      const stored = JSON.parse(storedRaw) as {
-        claimed?: boolean
-        claimedAt?: string
-        platform?: ReviewPlatformId
-        rewardId?: RewardId
-        spinNumber?: number
-      }
-
-      if (!stored.rewardId || !(stored.rewardId in rewardMap)) return
-
-      setSelectedRewardId(stored.rewardId)
-      setSpinCount(stored.spinNumber ?? 1)
-      setHasSpun(true)
-
-      if (stored.claimed && stored.platform) {
-        setClaimSnapshot({
-          createdAt: stored.claimedAt ? new Date(stored.claimedAt) : new Date(),
-          platform: stored.platform,
-          spinNumber: stored.spinNumber ?? 1,
-        })
-        setStep('claim')
-      } else {
-        setStep('gift')
-      }
-    } catch {
-      window.localStorage.removeItem(storageKey)
-    }
-  }, [])
+  const copy = uiCopy[deferredLocale]
+  const foodSections = sections.filter((section) => section.id !== 'bar')
 
   useEffect(() => {
     document.documentElement.lang = localeTags[deferredLocale]
     document.title = copy.pageTitle
-  }, [copy.pageTitle, deferredLocale])
+
+    const descriptionTag = document.querySelector('meta[name="description"]')
+    descriptionTag?.setAttribute('content', copy.pageDescription)
+  }, [copy.pageDescription, copy.pageTitle, deferredLocale])
 
   useEffect(() => {
-    return () => {
-      if (spinTimeoutRef.current !== null) {
-        window.clearTimeout(spinTimeoutRef.current)
+    try {
+      window.localStorage.setItem(storageKey, locale)
+    } catch {
+      // Ignore private mode or storage access errors.
+    }
+  }, [locale])
+
+  useEffect(() => {
+    if (!isMenuOpen) return
+
+    const previousOverflow = document.body.style.overflow
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        setIsMenuOpen(false)
       }
+    }
+
+    document.body.style.overflow = 'hidden'
+    window.addEventListener('keydown', handleKeyDown)
+
+    return () => {
+      document.body.style.overflow = previousOverflow
+      window.removeEventListener('keydown', handleKeyDown)
+    }
+  }, [isMenuOpen])
+
+  useEffect(() => {
+    if (typeof window === 'undefined' || !('IntersectionObserver' in window)) {
+      return
+    }
+
+    const sectionElements = Array.from(
+      document.querySelectorAll<HTMLElement>('[data-menu-section="true"]'),
+    )
+
+    if (sectionElements.length === 0) return
+
+    const observer = new IntersectionObserver(
+      (entries) => {
+        const visibleEntry = entries
+          .filter((entry) => entry.isIntersecting)
+          .sort((left, right) => right.intersectionRatio - left.intersectionRatio)[0]
+
+        if (visibleEntry?.target.id) {
+          setActiveSectionId(visibleEntry.target.id)
+        }
+      },
+      {
+        rootMargin: '-22% 0px -54% 0px',
+        threshold: [0.2, 0.4, 0.65],
+      },
+    )
+
+    sectionElements.forEach((sectionElement) => observer.observe(sectionElement))
+
+    return () => {
+      observer.disconnect()
     }
   }, [])
 
-  const stepLabels = {
-    claim: copy.stepClaim,
-    gift: copy.stepGift,
-    review: copy.stepReview,
-    spin: copy.stepSpin,
-    welcome: copy.stepWelcome,
+  const closeMenu = () => {
+    setIsMenuOpen(false)
   }
 
-  const currentStepIndex = stepOrder.indexOf(step)
-
-  const wheelBackground = `conic-gradient(${wheelSegments
-    .map((segment, index) => {
-      const start = index * 36
-      const end = start + 36
-
-      return `${rewardMap[segment].segmentColor} ${start}deg ${end}deg`
-    })
-    .join(', ')})`
-
-  const setLocaleWithTransition = (nextLocale: Locale) => {
+  const switchLocale = (nextLocale: Locale) => {
     startTransition(() => {
       setLocale(nextLocale)
-      setIsLanguageOpen(false)
     })
+    closeMenu()
   }
-
-  const handleSpin = () => {
-    if (isSpinning || hasSpun) return
-
-    if (spinTimeoutRef.current !== null) {
-      window.clearTimeout(spinTimeoutRef.current)
-    }
-
-    const selectedSegment = pickWeightedSegment()
-
-    playSpinSound()
-    setIsSpinning(true)
-    setSelectedRewardId(null)
-    setClaimSnapshot(null)
-    setSpinRotation((currentRotation) => {
-      const targetRotation = getSpinTargetDegrees(selectedSegment.index)
-      const currentOffset = ((currentRotation % 360) + 360) % 360
-      const delta = (targetRotation - currentOffset + 360) % 360
-
-      return currentRotation + 2160 + delta
-    })
-
-    spinTimeoutRef.current = window.setTimeout(() => {
-      setSelectedRewardId(selectedSegment.rewardId)
-      setSpinCount((currentCount) => currentCount + 1)
-      setBurstSeed((current) => current + 1)
-      setHasSpun(true)
-      setIsSpinning(false)
-      setStep('gift')
-
-      const payload = {
-        rewardId: selectedSegment.rewardId,
-        spinNumber: 1,
-        claimed: false,
-      }
-
-      window.localStorage.setItem(storageKey, JSON.stringify(payload))
-    }, 4200)
-  }
-
-  const handleDirectReview = (platform: ReviewPlatformId) => {
-    setClaimSnapshot({
-      createdAt: new Date(),
-      platform,
-      spinNumber: Math.max(1, spinCount),
-    })
-    window.localStorage.setItem(
-      storageKey,
-      JSON.stringify({
-        rewardId: selectedRewardId ?? 'tea',
-        spinNumber: Math.max(1, spinCount),
-        claimed: true,
-        claimedAt: new Date().toISOString(),
-        platform,
-      }),
-    )
-    setStep('claim')
-  }
-
-  const claimTimestamp = claimSnapshot
-    ? new Intl.DateTimeFormat(localeTags[deferredLocale], {
-        day: '2-digit',
-        hour: '2-digit',
-        minute: '2-digit',
-        month: 'short',
-      }).format(claimSnapshot.createdAt)
-    : ''
 
   return (
-    <main className="app-shell">
-      <section className="wizard-card">
-        <header className="wizard-header">
-          <div className="header-top">
-            <span className="brand-wordmark">paprika</span>
+    <div className="menu-shell">
+      <div className="menu-shell__orb menu-shell__orb--left" aria-hidden="true" />
+      <div className="menu-shell__orb menu-shell__orb--right" aria-hidden="true" />
+
+      {isMenuOpen ? (
+        <button
+          type="button"
+          className="drawer-backdrop"
+          aria-label={copy.closeMenu}
+          onClick={closeMenu}
+        />
+      ) : null}
+
+      {isMenuOpen ? (
+        <aside
+          id="menu-drawer"
+          className="drawer"
+          role="dialog"
+          aria-modal="true"
+          aria-label={copy.menuTitle}
+        >
+          <div className="drawer__header">
+            <div className="drawer__title-wrap">
+              <p className="drawer__eyebrow">{copy.qrBadge}</p>
+              <h2>{copy.menuTitle}</h2>
+            </div>
 
             <button
               type="button"
-              className="language-trigger"
-              aria-label={copy.changeLanguage}
-              onClick={() => setIsLanguageOpen((current) => !current)}
+              className="icon-button"
+              aria-label={copy.closeMenu}
+              onClick={closeMenu}
             >
-              <GlobeIcon className="globe-icon" />
-              <span>{localeLabels[deferredLocale]}</span>
+              <CloseIcon />
             </button>
           </div>
 
-          {isLanguageOpen ? (
-            <div className="language-sheet" role="dialog" aria-label={copy.changeLanguage}>
-              {locales.map((availableLocale) => (
+          <p className="drawer__note">{copy.originalNote}</p>
+
+          <section className="drawer__group">
+            <p className="drawer__label">{copy.languageLabel}</p>
+            <div className="drawer__languages" role="group" aria-label={copy.languageLabel}>
+              {locales.map((localeOption) => (
                 <button
-                  key={availableLocale}
+                  key={localeOption}
                   type="button"
-                  className={`language-option ${
-                    availableLocale === deferredLocale ? 'language-option--active' : ''
-                  }`}
-                  onClick={() => setLocaleWithTransition(availableLocale)}
+                  className={
+                    localeOption === deferredLocale
+                      ? 'language-chip language-chip--active'
+                      : 'language-chip'
+                  }
+                  aria-pressed={localeOption === deferredLocale}
+                  aria-label={localeNames[localeOption]}
+                  onClick={() => switchLocale(localeOption)}
                 >
-                  {localeLabels[availableLocale]}
+                  <strong>{localeLabels[localeOption]}</strong>
+                  <span>{localeNames[localeOption]}</span>
                 </button>
               ))}
             </div>
-          ) : null}
+          </section>
 
-          <div className="progress-bar">
-            {stepOrder.map((stepId, index) => (
-              <div
-                key={stepId}
-                className={`progress-node ${
-                  index <= currentStepIndex ? 'progress-node--active' : ''
-                }`}
+          <section className="drawer__group">
+            <p className="drawer__label">{copy.actionsLabel}</p>
+            <div className="drawer__links">
+              <a className="quick-link" href={links.phone} onClick={closeMenu}>
+                {copy.quickCall}
+              </a>
+              <a
+                className="quick-link"
+                href={links.directions}
+                target="_blank"
+                rel="noreferrer"
+                onClick={closeMenu}
               >
-                <span>{index + 1}</span>
-                <small>{stepLabels[stepId]}</small>
-              </div>
+                {copy.quickDirections}
+              </a>
+              <a
+                className="quick-link"
+                href={links.website}
+                target="_blank"
+                rel="noreferrer"
+                onClick={closeMenu}
+              >
+                {copy.quickWebsite}
+              </a>
+            </div>
+          </section>
+
+          <nav className="drawer__sections" aria-label={copy.sectionsLabel}>
+            <p className="drawer__label">{copy.sectionsLabel}</p>
+            {sections.map((section) => (
+              <a key={section.id} href={`#${section.id}`} className="drawer__section-link" onClick={closeMenu}>
+                {section.title[deferredLocale]}
+              </a>
             ))}
+          </nav>
+        </aside>
+      ) : null}
+
+      <div className="menu-app">
+        <header className="topbar">
+          <a href="#bar" className="brandmark">
+            paprika
+          </a>
+
+          <div className="topbar__actions">
+            <span className="topbar__badge">{copy.qrBadge}</span>
+            <span className="topbar__locale">{localeLabels[deferredLocale]}</span>
+            <button
+              type="button"
+              className="icon-button"
+              aria-label={copy.menuButton}
+              aria-controls="menu-drawer"
+              aria-expanded={isMenuOpen}
+              onClick={() => setIsMenuOpen(true)}
+            >
+              <MenuIcon />
+            </button>
           </div>
         </header>
 
-        <div className="wizard-stage">
-          {step === 'welcome' ? (
-            <section className="page page--welcome">
-              <div className="hero-stack">
-                <div className="welcome-copy">
-                  <h1>{copy.welcomeTitle}</h1>
-                  <p className="page-copy">{copy.welcomeBody}</p>
-                </div>
-
-                <div className="food-fan" aria-hidden="true">
-                  <img src="/assets/paprika-food-1.jpg" alt="" className="food-fan__left" />
-                  <img src="/assets/paprika-food-2.jpg" alt="" className="food-fan__center" />
-                  <img src="/assets/paprika-food-3.jpg" alt="" className="food-fan__right" />
-                </div>
-
-                <div className="stat-row">
-                  {rewardPool.map((reward) => (
-                    <article
-                      key={reward.id}
-                      className="stat-pill"
-                      style={{ '--reward-accent': reward.accent } as CSSProperties}
-                    >
-                      <RewardIcon rewardId={reward.id} className="stat-pill__icon" />
-                      <span>{reward.labelByLocale[deferredLocale]}</span>
-                    </article>
-                  ))}
-                </div>
-
+        <section className="sticky-toolbar">
+          <div className="sticky-toolbar__group">
+            <p className="sticky-toolbar__label">{copy.languageLabel}</p>
+            <div className="sticky-toolbar__languages" role="group" aria-label={copy.languageLabel}>
+              {locales.map((localeOption) => (
                 <button
+                  key={localeOption}
                   type="button"
-                  className="action-button"
-                  onClick={() => setStep(hasSpun ? 'gift' : 'spin')}
+                  className={
+                    localeOption === deferredLocale
+                      ? 'language-chip language-chip--active'
+                      : 'language-chip'
+                  }
+                  aria-pressed={localeOption === deferredLocale}
+                  aria-label={localeNames[localeOption]}
+                  onClick={() => switchLocale(localeOption)}
                 >
-                  {copy.startButton}
+                  <strong>{localeLabels[localeOption]}</strong>
+                  <span>{localeNames[localeOption]}</span>
                 </button>
-              </div>
-            </section>
-          ) : null}
+              ))}
+            </div>
+          </div>
 
-          {step === 'spin' ? (
-            <section className="page page--spin">
-              <div className="page-head">
-                <h2>{copy.spinTitle}</h2>
-                <p className="page-copy">{copy.spinBody}</p>
-              </div>
-
-              <div className="wheel-shell">
-                <div className="wheel-pointer" aria-hidden="true"></div>
-                <div
-                  className="wheel"
-                  style={
-                    {
-                      backgroundImage: wheelBackground,
-                      transform: `rotate(${spinRotation}deg)`,
-                    } as CSSProperties
+          <div className="sticky-toolbar__group">
+            <p className="sticky-toolbar__label">{copy.foodQuickMenuLabel}</p>
+            <nav className="food-quick-nav" aria-label={copy.foodQuickMenuLabel}>
+              {foodSections.map((section) => (
+                <a
+                  key={section.id}
+                  href={`#${section.id}`}
+                  className={
+                    section.id === activeSectionId
+                      ? 'food-quick-nav__link food-quick-nav__link--active'
+                      : 'food-quick-nav__link'
                   }
                 >
-                  {wheelSegments.map((segment, index) => (
-                    <div
-                      key={`${segment}-${index}`}
-                      className="wheel-label"
-                      style={{ '--index': index } as CSSProperties}
-                    >
-                      <div className="wheel-label__inner">
-                        <RewardIcon rewardId={segment} className="wheel-label__icon" />
-                        <span>{rewardMap[segment].shortLabelByLocale[deferredLocale]}</span>
-                      </div>
-                    </div>
-                  ))}
-                </div>
+                  {section.title[deferredLocale]}
+                </a>
+              ))}
+            </nav>
+          </div>
+        </section>
 
-                <button
-                  type="button"
-                  className="spin-trigger"
-                  onClick={handleSpin}
-                  disabled={isSpinning || hasSpun}
-                >
-                  {hasSpun ? copy.stepGift : isSpinning ? copy.spinningButton : copy.spinButton}
-                </button>
-              </div>
-
-              <div className="page-actions">
-                <button
-                  type="button"
-                  className="ghost-button"
-                  onClick={() => setStep('welcome')}
-                >
-                  {copy.backButton}
-                </button>
-              </div>
-            </section>
-          ) : null}
-
-          {step === 'gift' && activeReward ? (
+        <main className="section-stack">
+          {sections.map((section) => (
             <section
-              key={burstSeed}
-              className="page page--gift"
-              style={
-                {
-                  '--reward-accent': activeReward.accent,
-                  '--reward-burst': activeReward.burst,
-                } as CSSProperties
-              }
+              key={section.id}
+              id={section.id}
+              data-menu-section="true"
+              className="menu-section"
             >
-              <div className="burst-scene" aria-hidden="true">
-                {Array.from({ length: 12 }, (_, index) => (
-                  <span
-                    key={`spark-${index}`}
-                    className="burst-spark"
-                    style={{ '--spark-index': index } as CSSProperties}
-                  ></span>
+              <div className="menu-section__header">
+                <p className="menu-section__eyebrow">{copy.sectionsLabel}</p>
+                <h2>{section.title[deferredLocale]}</h2>
+              </div>
+
+              <div className="subsection-grid">
+                {section.subSections.map((subSection) => (
+                  <div key={subSection.id} className="menu-block">
+                    <div className="menu-block__header">
+                      <h3>{subSection.title[deferredLocale]}</h3>
+                    </div>
+
+                    <div className="menu-items">
+                      {subSection.items.map((menuItem) => {
+                        const secondaryName =
+                          deferredLocale === 'tr'
+                            ? menuItem.name.en
+                            : deferredLocale === 'en'
+                              ? menuItem.name.tr
+                              : undefined
+
+                        const details = resolveItemDetails(menuItem.details, deferredLocale)
+
+                        return (
+                          <article key={menuItem.id} className="menu-item">
+                            <div className="menu-item__row">
+                              <div className="menu-item__copy">
+                                <h4>{resolveItemName(menuItem.name, deferredLocale)}</h4>
+                                {secondaryName ? (
+                                  <p className="menu-item__secondary">{secondaryName}</p>
+                                ) : null}
+                              </div>
+                              <strong className="menu-item__price">{menuItem.price}</strong>
+                            </div>
+
+                            {(menuItem.badge || details) && (
+                              <div className="menu-item__meta">
+                                {menuItem.badge ? (
+                                  <div className="menu-item__badge-row">
+                                    <BadgePill badgeId={menuItem.badge} locale={deferredLocale} />
+                                    <p className="menu-item__badge-note">
+                                      {badgeDescriptions[menuItem.badge][deferredLocale]}
+                                    </p>
+                                  </div>
+                                ) : null}
+                                {details ? <p className="menu-item__details">{details}</p> : null}
+                              </div>
+                            )}
+                          </article>
+                        )
+                      })}
+                    </div>
+                  </div>
                 ))}
               </div>
-
-              <div className="gift-core">
-                <div className="gift-core__icon">
-                  <RewardIcon rewardId={activeReward.id} className="gift-core__svg" />
-                </div>
-                <h2>{copy.giftTitle.replace('{reward}', activeReward.labelByLocale[deferredLocale])}</h2>
-                <p className="page-copy">{copy.giftBody}</p>
-              </div>
-
-              <div className="page-actions">
-                <button
-                  type="button"
-                  className="action-button"
-                  onClick={() => setStep('review')}
-                >
-                  {copy.stepReview}
-                </button>
-              </div>
             </section>
-          ) : null}
+          ))}
+        </main>
 
-          {step === 'review' && activeReward ? (
-            <section className="page page--review">
-              <div className="page-head">
-                <h2>{copy.reviewTitle}</h2>
-                <p className="page-copy">{copy.reviewBody}</p>
-              </div>
-
-              <p className="direct-hint">{copy.directReviewHint}</p>
-
-              <div className="review-grid">
-                <a
-                  className="review-card"
-                  href={links.googleReview}
-                  target="_blank"
-                  rel="noreferrer"
-                  onClick={() => handleDirectReview('google')}
-                >
-                  <img
-                    src="/assets/google-badge.png"
-                    alt="Google"
-                    className="review-card__logo review-card__logo--google"
-                  />
-                  <strong>{copy.googleCta}</strong>
-                </a>
-
-                <a
-                  className="review-card"
-                  href={links.tripadvisorReview}
-                  target="_blank"
-                  rel="noreferrer"
-                  onClick={() => handleDirectReview('tripadvisor')}
-                >
-                  <img
-                    src="/assets/tripadvisor-icon.png"
-                    alt="TripAdvisor"
-                    className="review-card__logo review-card__logo--tripadvisor"
-                  />
-                  <strong>{copy.tripadvisorCta}</strong>
-                </a>
-              </div>
-
-              <div className="page-actions">
-                <button
-                  type="button"
-                  className="ghost-button"
-                  onClick={() => setStep('gift')}
-                >
-                  {copy.backButton}
-                </button>
-              </div>
-            </section>
-          ) : null}
-
-          {step === 'claim' && activeReward && claimSnapshot ? (
-            <section
-              className="page page--claim"
-              style={{ '--reward-accent': activeReward.accent } as CSSProperties}
-            >
-              <div className="claim-card">
-                <RewardIcon rewardId={activeReward.id} className="claim-card__icon" />
-                <h2>{copy.claimTitle}</h2>
-                <p className="page-copy">{activeReward.staffInstructionByLocale[deferredLocale]}</p>
-                <p className="claim-card__body">{copy.claimBody}</p>
-
-                <div className="claim-card__meta">
-                  <span>
-                    {copy.platformOpened}:{' '}
-                    {claimSnapshot.platform === 'google' ? 'Google' : 'TripAdvisor'}
-                  </span>
-                  <span>{claimTimestamp}</span>
-                  <span>#{String(claimSnapshot.spinNumber).padStart(2, '0')}</span>
-                </div>
-              </div>
-
-              <div className="page-actions">
-                <button
-                  type="button"
-                  className="action-button"
-                  onClick={() => {
-                    setSelectedRewardId(null)
-                    setClaimSnapshot(null)
-                    setStep('review')
-                  }}
-                >
-                  {copy.stepReview}
-                </button>
-              </div>
-            </section>
-          ) : null}
-        </div>
-      </section>
-
-      <footer className="footer-bar">
-        <a href={links.website} target="_blank" rel="noreferrer">
-          {copy.websiteCta}
-        </a>
-        <a href={links.maps} target="_blank" rel="noreferrer">
-          {copy.mapCta}
-        </a>
-        <a href={links.instagram} target="_blank" rel="noreferrer">
-          {copy.instagramCta}
-        </a>
-        <a href={links.phone}>{copy.callCta}</a>
-      </footer>
-    </main>
+        <footer className="menu-footer">
+          <p>{copy.allPricesNote}</p>
+          <a href={links.website} target="_blank" rel="noreferrer">
+            paprikacappadocia.com
+          </a>
+        </footer>
+      </div>
+    </div>
   )
 }
 

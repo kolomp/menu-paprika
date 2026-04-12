@@ -1,11 +1,18 @@
 :root {
+  --color-bg: #f7f1e3;
+  --color-surface: #fff8f0;
+  --color-ink: #1d261d;
+  --color-red: #e65834;
+  --color-olive: #9aad48;
+  --color-gold: #f6d268;
   font-family: 'Space Grotesk', sans-serif;
-  line-height: 1.45;
+  line-height: 1.5;
   font-weight: 400;
-  color: #fff8ec;
+  color: var(--color-ink);
   background:
-    radial-gradient(circle at top, rgba(255, 213, 93, 0.12), transparent 24%),
-    linear-gradient(180deg, #10231c 0%, #152d24 42%, #1d382d 100%);
+    radial-gradient(circle at top left, rgba(246, 210, 104, 0.26), transparent 22%),
+    radial-gradient(circle at top right, rgba(154, 173, 72, 0.22), transparent 20%),
+    linear-gradient(180deg, #fcf5ea 0%, #f5eddc 52%, #efe6d2 100%);
   font-synthesis: none;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
@@ -26,6 +33,19 @@ body {
   margin: 0;
   min-width: 20rem;
   min-height: 100svh;
+}
+
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  opacity: 0.34;
+  background-image:
+    radial-gradient(circle at 2px 2px, rgba(29, 38, 29, 0.08) 1px, transparent 0),
+    linear-gradient(135deg, rgba(230, 88, 52, 0.04), transparent 45%);
+  background-size: 1.1rem 1.1rem, auto;
+  pointer-events: none;
 }
 
 button,
@@ -56,38 +76,39 @@ a {
 h1,
 h2,
 h3,
-p {
+h4,
+p,
+figure {
   margin: 0;
 }
 
 h1,
 h2,
 h3 {
-  color: #fff8ec;
-  line-height: 0.98;
+  font-family: 'Cormorant Garamond', serif;
+  line-height: 0.94;
 }
 
 h1 {
-  font-family: 'Bebas Neue', sans-serif;
-  font-size: clamp(3rem, 13vw, 4.6rem);
-  letter-spacing: 0.01em;
+  font-size: clamp(3.4rem, 9.5vw, 6rem);
+  letter-spacing: -0.06em;
 }
 
 h2 {
-  font-family: 'Bebas Neue', sans-serif;
-  font-size: clamp(2rem, 9vw, 2.75rem);
-  letter-spacing: 0.03em;
+  font-size: clamp(2.1rem, 6vw, 3.25rem);
+  letter-spacing: -0.04em;
 }
 
 h3 {
-  font-size: 1.1rem;
+  font-size: 1.45rem;
+  letter-spacing: -0.03em;
 }
 
-p {
-  font-size: 0.94rem;
+h4 {
+  line-height: 1.15;
 }
 
 ::selection {
-  background: rgba(255, 211, 93, 0.24);
-  color: #fff8ec;
+  background: rgba(230, 88, 52, 0.22);
+  color: var(--color-ink);
 }
