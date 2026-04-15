@@ -6,10 +6,12 @@ import {
   localeLabels,
   localeNames,
   localeTags,
-  locales,
   resolveItemDetails,
   resolveItemName,
+  resolveLocalizedText,
+  resolvePrice,
   resolveLocale,
+  supportedLocales,
   sections,
   uiCopy,
   type BadgeId,
@@ -94,7 +96,7 @@ function BadgePill({
   return (
     <span className={`menu-item__badge menu-item__badge--${badgeId}`}>
       <BadgeIcon badgeId={badgeId} />
-      <span>{badgeLabels[badgeId][locale]}</span>
+      <span>{resolveLocalizedText(badgeLabels[badgeId], locale)}</span>
     </span>
   )
 }
@@ -104,7 +106,7 @@ function readStoredLocale(): Locale | null {
 
   const stored = window.localStorage.getItem(storageKey)
 
-  return locales.find((locale) => locale === stored) ?? null
+  return supportedLocales.find((locale) => locale === stored) ?? null
 }
 
 function App() {
@@ -249,7 +251,7 @@ function App() {
           <section className="drawer__group">
             <p className="drawer__label">{copy.languageLabel}</p>
             <div className="drawer__languages" role="group" aria-label={copy.languageLabel}>
-              {locales.map((localeOption) => (
+              {supportedLocales.map((localeOption) => (
                 <button
                   key={localeOption}
                   type="button"
@@ -300,7 +302,7 @@ function App() {
             <p className="drawer__label">{copy.sectionsLabel}</p>
             {sections.map((section) => (
               <a key={section.id} href={`#${section.id}`} className="drawer__section-link" onClick={closeMenu}>
-                {section.title[deferredLocale]}
+                {resolveLocalizedText(section.title, deferredLocale)}
               </a>
             ))}
           </nav>
@@ -333,7 +335,7 @@ function App() {
           <div className="sticky-toolbar__group">
             <p className="sticky-toolbar__label">{copy.languageLabel}</p>
             <div className="sticky-toolbar__languages" role="group" aria-label={copy.languageLabel}>
-              {locales.map((localeOption) => (
+              {supportedLocales.map((localeOption) => (
                 <button
                   key={localeOption}
                   type="button"
@@ -366,7 +368,7 @@ function App() {
                       : 'food-quick-nav__link'
                   }
                 >
-                  {section.title[deferredLocale]}
+                  {resolveLocalizedText(section.title, deferredLocale)}
                 </a>
               ))}
             </nav>
@@ -383,25 +385,18 @@ function App() {
             >
               <div className="menu-section__header">
                 <p className="menu-section__eyebrow">{copy.sectionsLabel}</p>
-                <h2>{section.title[deferredLocale]}</h2>
+                <h2>{resolveLocalizedText(section.title, deferredLocale)}</h2>
               </div>
 
               <div className="subsection-grid">
                 {section.subSections.map((subSection) => (
                   <div key={subSection.id} className="menu-block">
                     <div className="menu-block__header">
-                      <h3>{subSection.title[deferredLocale]}</h3>
+                      <h3>{resolveLocalizedText(subSection.title, deferredLocale)}</h3>
                     </div>
 
                     <div className="menu-items">
                       {subSection.items.map((menuItem) => {
-                        const secondaryName =
-                          deferredLocale === 'tr'
-                            ? menuItem.name.en
-                            : deferredLocale === 'en'
-                              ? menuItem.name.tr
-                              : undefined
-
                         const details = resolveItemDetails(menuItem.details, deferredLocale)
 
                         return (
@@ -409,11 +404,8 @@ function App() {
                             <div className="menu-item__row">
                               <div className="menu-item__copy">
                                 <h4>{resolveItemName(menuItem.name, deferredLocale)}</h4>
-                                {secondaryName ? (
-                                  <p className="menu-item__secondary">{secondaryName}</p>
-                                ) : null}
                               </div>
-                              <strong className="menu-item__price">{menuItem.price}</strong>
+                              <strong className="menu-item__price">{resolvePrice(menuItem.price, deferredLocale)}</strong>
                             </div>
 
                             {(menuItem.badge || details) && (
@@ -422,7 +414,7 @@ function App() {
                                   <div className="menu-item__badge-row">
                                     <BadgePill badgeId={menuItem.badge} locale={deferredLocale} />
                                     <p className="menu-item__badge-note">
-                                      {badgeDescriptions[menuItem.badge][deferredLocale]}
+                                      {resolveLocalizedText(badgeDescriptions[menuItem.badge], deferredLocale)}
                                     </p>
                                   </div>
                                 ) : null}

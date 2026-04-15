@@ -1,4 +1,5 @@
-export const locales = ['tr', 'en', 'zh', 'ko', 'ja', 'it', 'ru'] as const
+export const locales = ['tr', 'en', 'zh', 'ko', 'ja', 'it', 'ru', 'es'] as const
+export const supportedLocales = ['tr', 'en', 'zh', 'ja', 'it', 'ru', 'es'] as const
 
 export type Locale = (typeof locales)[number]
 export type BadgeId = 'spicy' | 'vegetarian'
@@ -52,7 +53,21 @@ type UiCopy = {
   vegetarianDescription: string
 }
 
-const text = (values: Record<Locale, string>): Record<Locale, string> => values
+type LocalizedSeed = Partial<Record<Locale, string>> & {
+  en: string
+  tr: string
+}
+
+const text = (values: LocalizedSeed): Record<Locale, string> => ({
+  tr: values.tr,
+  en: values.en,
+  zh: values.zh ?? values.en,
+  ko: values.ko ?? values.en,
+  ja: values.ja ?? values.en,
+  it: values.it ?? values.en,
+  ru: values.ru ?? values.en,
+  es: values.es ?? values.en,
+})
 
 const details = (en: string, tr?: string) => ({
   en,
@@ -539,6 +554,136 @@ const detailTranslationsByEnglish: Record<string, Record<Locale, string>> = {
   }),
 }
 
+const spanishTextOverridesByEnglish: Record<string, string> = {
+  'Bar Selection': 'Selección de bar',
+  'Wine by Glass & Bottle': 'Vino por copa y botella',
+  'Cappadocia Local Red': 'Vino tinto local de Capadocia',
+  'Cappadocia Local White': 'Vino blanco local de Capadocia',
+  'Cappadocia Local Rose': 'Vino rosado local de Capadocia',
+  "Kocabag Leo's Red": "Kocabag Leo's Tinto",
+  'Imported Rose Wine': 'Vino rosado importado',
+  'Pinot Grigio Blush': 'Pinot Grigio Blush',
+  'Casal Mendes Rose': 'Casal Mendes Rosé',
+  'Whispering Angel Rose': 'Whispering Angel Rosé',
+  'Champagne & Sparkling Wine': 'Champán y espumosos',
+  'Dom Pérignon': 'Dom Pérignon',
+  'Moet Chandon Imperial': 'Moët & Chandon Impérial',
+  'Prosecco Martini': 'Martini Prosecco',
+  Cocktails: 'Cócteles',
+  'Aperol Spritz': 'Aperol Spritz',
+  Mojito: 'Mojito',
+  Margarita: 'Margarita',
+  'Campari Orange': 'Campari Orange',
+  Whiskey: 'Whisky',
+  'Chivas 12 Yr · 5 cl': 'Chivas 12 años · 5 cl',
+  'Chivas 18 Yr · 5 cl': 'Chivas 18 años · 5 cl',
+  'Talisker 10 Yr · 5 cl': 'Talisker 10 años · 5 cl',
+  Beers: 'Cervezas',
+  'Efes · 33 cl': 'Efes · 33 cl',
+  'Efes Green · 50 cl': 'Efes Green · 50 cl',
+  'Bomonti · 50 cl': 'Bomonti · 50 cl',
+  'Miller · 33 cl': 'Miller · 33 cl',
+  Tequila: 'Tequila',
+  'El Toro · 5 cl': 'El Toro · 5 cl',
+  'Don Julio Reposado · 5 cl': 'Don Julio Reposado · 5 cl',
+  'Patron Silver · 5 cl': 'Patron Silver · 5 cl',
+  Spirits: 'Destilados',
+  "Hendrick's Gin · 5 cl": "Ginebra Hendrick's · 5 cl",
+  "Gordon's Gin · 5 cl": "Ginebra Gordon's · 5 cl",
+  'Smirnoff Vodka · 5 cl': 'Vodka Smirnoff · 5 cl',
+  'Digestive & Liqueur': 'Digestivos y licores',
+  'Limoncello · 5 cl': 'Limoncello · 5 cl',
+  'Jägermeister · 5 cl': 'Jägermeister · 5 cl',
+  'Baileys · 5 cl': 'Baileys · 5 cl',
+  'Starters & Salads': 'Entrantes y ensaladas',
+  Starters: 'Entrantes',
+  'Paprika Special Soup': 'Sopa especial Paprika',
+  'Hummus Plate': 'Plato de hummus',
+  'Köpoğlu Meze': 'Meze Köpoğlu',
+  'Shrimp Casserole': 'Cazuela de gambas',
+  'French Fries': 'Papas fritas',
+  'Combo Plate': 'Plato combinado',
+  'Prawn Tempura': 'Tempura de gambas',
+  Salads: 'Ensaladas',
+  'Tuna Salad': 'Ensalada de atún',
+  'Caesar Salad with Chicken': 'Ensalada César con pollo',
+  'Caesar Salad with Shrimp': 'Ensalada César con gambas',
+  'Smoked Salmon Salad': 'Ensalada de salmón ahumado',
+  'Turkish Main Dishes': 'Platos principales turcos',
+  'Main Dishes': 'Platos principales',
+  'Pottery Kebab': 'Kebab en cazuela',
+  'Çökertme Kebab': 'Kebab Çökertme',
+  'Dana Külbastı': 'Dana Külbastı',
+  'Chicken Casserole': 'Cazuela de pollo',
+  'Lamb Casserole': 'Cazuela de cordero',
+  'Turkish Ravioli': 'Ravioles turcos',
+  'Beef Burgers': 'Hamburguesas de res',
+  'Burger & French Fries': 'Hamburguesa y papas fritas',
+  Hamburger: 'Hamburguesa',
+  Cheeseburger: 'Hamburguesa con queso',
+  'Mexican Burger': 'Hamburguesa mexicana',
+  'House Burger': 'Hamburguesa de la casa',
+  'Paprika Steak Burger': 'Hamburguesa Paprika Steak',
+  'Truffle Mayo Burger': 'Hamburguesa con mayo de trufa',
+  'Heart Attack Burger': 'Hamburguesa Heart Attack',
+  'High Tower Burger': 'Hamburguesa High Tower',
+  'Veggie Burger': 'Hamburguesa vegetariana',
+  'Veggie Truffle Mayo Burger': 'Hamburguesa vegetariana con mayo de trufa',
+  'Extra Cheddar Cheese': 'Extra de queso cheddar',
+  'Extra Truffle Mayonnaise': 'Extra de mayonesa de trufa',
+  'Chicken Burgers': 'Hamburguesas de pollo',
+  'Chicken Burger': 'Hamburguesa de pollo',
+  'Chicken Cheese Burger': 'Hamburguesa de pollo con queso',
+  'Chicken Mexican Burger': 'Hamburguesa mexicana de pollo',
+  'Chicken House Burger': 'Hamburguesa de pollo de la casa',
+  'Chicken Truffle Mayo Burger': 'Hamburguesa de pollo con mayo de trufa',
+  Pasta: 'Pasta',
+  'Pasta Selection': 'Selección de pasta',
+  'Chicken Curry Penne': 'Penne al curry con pollo',
+  'Penne all Arrabbiata': "Penne all'Arrabbiata",
+  'Penne Pollo': 'Penne Pollo',
+  'Spaghetti Napolitan': 'Espagueti napolitano',
+  'Spaghetti Bolognese': 'Espagueti a la boloñesa',
+  'Spaghetti Shrimp': 'Espagueti con gambas',
+  'Fettuccine Alfredo': 'Fettuccine Alfredo',
+  'Extra Parmesan Cheese': 'Extra de queso parmesano',
+  'Stir Fry Noodles': 'Noodles salteados',
+  'Noodle Selection': 'Selección de noodles',
+  'Chicken Noodle': 'Noodles con pollo',
+  'Beef Noodle': 'Noodles con res',
+  'Veggie Noodle': 'Noodles vegetarianos',
+  'Noodle with Shrimp': 'Noodles con gambas',
+  Wraps: 'Wraps',
+  'Wrap & French Fries': 'Wrap y papas fritas',
+  'Chicken Wrap': 'Wrap de pollo',
+  'Beef Wrap': 'Wrap de res',
+  'Falafel Wrap': 'Wrap de falafel',
+  'Desserts & Drinks': 'Postres y bebidas',
+  Desserts: 'Postres',
+  Baklava: 'Baklava',
+  Tiramisu: 'Tiramisú',
+  'Cheesecake Lemon': 'Cheesecake de limón',
+  "Devil's Cake": "Tarta Devil's",
+  'Cold Beverages': 'Bebidas frías',
+  'Coca Cola · Fanta · Sprite · Fuse Tea': 'Coca Cola · Fanta · Sprite · Fuse Tea',
+  'Spring Water · 330 ml': 'Agua · 330 ml',
+  'Mineral Water · 200 ml': 'Agua mineral · 200 ml',
+  'San Pellegrino Soda · 250 ml': 'San Pellegrino Soda · 250 ml',
+  'Ayran · 295 ml': 'Ayran · 295 ml',
+  'Fresh Orange Juice': 'Jugo de naranja natural',
+  'Homemade Lemonade': 'Limonada casera',
+  'Homemade Milkshake': 'Milkshake casero',
+  'Virgin Mojito': 'Virgin Mojito',
+  'Redbull (Original)': 'Red Bull (Original)',
+  'Hot Beverages': 'Bebidas calientes',
+  'Brewed Coffee (Big Cup)': 'Café filtrado (taza grande)',
+  'Turkish Coffee': 'Café turco',
+  'Tea (Big Cup / Small Glass)': 'Té (taza grande / vaso pequeño)',
+  Espresso: 'Espresso',
+  Americano: 'Americano',
+  Cappuccino: 'Capuchino',
+}
+
 const item = (
   id: string,
   name: Record<Locale, string>,
@@ -561,6 +706,7 @@ export const localeLabels: Record<Locale, string> = {
   ja: '日本語',
   it: 'IT',
   ru: 'RU',
+  es: 'ES',
 }
 
 export const localeNames: Record<Locale, string> = {
@@ -571,6 +717,7 @@ export const localeNames: Record<Locale, string> = {
   ja: '日本語',
   it: 'Italiano',
   ru: 'Русский',
+  es: 'Español',
 }
 
 export const localeTags: Record<Locale, string> = {
@@ -581,6 +728,7 @@ export const localeTags: Record<Locale, string> = {
   ja: 'ja-JP',
   it: 'it-IT',
   ru: 'ru-RU',
+  es: 'es-ES',
 }
 
 export const badgeLabels: Record<BadgeId, Record<Locale, string>> = {
@@ -592,6 +740,7 @@ export const badgeLabels: Record<BadgeId, Record<Locale, string>> = {
     ja: '辛口',
     it: 'Piccante',
     ru: 'Острое',
+    es: 'Picante',
   }),
   vegetarian: text({
     tr: 'Vejetaryen',
@@ -601,6 +750,7 @@ export const badgeLabels: Record<BadgeId, Record<Locale, string>> = {
     ja: 'ベジ',
     it: 'Vegetariano',
     ru: 'Вегетарианское',
+    es: 'Vegetariano',
   }),
 }
 
@@ -613,6 +763,7 @@ export const badgeDescriptions: Record<BadgeId, Record<Locale, string>> = {
     ja: '辛口メニューにはハラペーニョ、チリソース、または強めのスパイスが使われます。',
     it: 'I piatti piccanti includono jalapeno, salsa chili o una speziatura piu intensa.',
     ru: 'Острые блюда содержат халапеньо, соус чили или более яркие специи.',
+    es: 'Los platos picantes incluyen jalapeño, salsa chili o un perfil de especias más intenso.',
   }),
   vegetarian: text({
     tr: 'Vejetaryen urunlerde et, tavuk veya balik bulunmaz.',
@@ -622,6 +773,7 @@ export const badgeDescriptions: Record<BadgeId, Record<Locale, string>> = {
     ja: 'ベジタリアン料理には牛肉、鶏肉、魚は含まれません。',
     it: 'I piatti vegetariani non contengono manzo, pollo o pesce.',
     ru: 'Вегетарианские блюда не содержат говядину, курицу или рыбу.',
+    es: 'Los platos vegetarianos no contienen carne de res, pollo ni pescado.',
   }),
 }
 
@@ -632,7 +784,7 @@ export const uiCopy: Record<Locale, UiCopy> = {
     autoHint: 'Telefon diline göre otomatik açılır, istersen aşağıdan değiştir.',
     closeMenu: 'Menüyü kapat',
     foodQuickMenuHint: 'Ana yemek kategorilerine hızlıca geç.',
-    foodQuickMenuLabel: 'Yemek Hızlı Menü',
+    foodQuickMenuLabel: 'Hızlı Menü',
     featuredLabel: 'Öne Çıkanlar',
     heroBody:
       'PDF menü mobil uyumlu HTML yapıya dönüştürüldü. Menü telefon diline göre otomatik açılır ve istediğin an dil değiştirebilirsin.',
@@ -653,7 +805,7 @@ export const uiCopy: Record<Locale, UiCopy> = {
     qrBadge: 'QR Menü',
     sectionsLabel: 'Kategoriler',
     spicyDescription: 'Acılı ürünlerde jalapeno, acı sos veya daha belirgin baharat kullanılır.',
-    sevenLanguages: '7 dil seçeneği',
+    sevenLanguages: '6 dil seçeneği',
     vegetarianDescription: 'Vejetaryen ürünlerde et, tavuk veya balık bulunmaz.',
   },
   en: {
@@ -662,7 +814,7 @@ export const uiCopy: Record<Locale, UiCopy> = {
     autoHint: 'Opens in the phone language automatically and can be changed anytime.',
     closeMenu: 'Close menu',
     foodQuickMenuHint: 'Jump directly to the main food categories.',
-    foodQuickMenuLabel: 'Food Quick Menu',
+    foodQuickMenuLabel: 'Quick Menu',
     featuredLabel: 'Highlights',
     heroBody:
       'The PDF menu has been rebuilt as a responsive HTML experience. It opens in the phone language automatically, with manual language switching always available.',
@@ -683,7 +835,7 @@ export const uiCopy: Record<Locale, UiCopy> = {
     qrBadge: 'QR Menu',
     sectionsLabel: 'Categories',
     spicyDescription: 'Spicy items include jalapeno, chili sauce, or a hotter seasoning profile.',
-    sevenLanguages: '7 language options',
+    sevenLanguages: '6 language options',
     vegetarianDescription: 'Vegetarian items do not contain beef, chicken, or fish.',
   },
   zh: {
@@ -692,7 +844,7 @@ export const uiCopy: Record<Locale, UiCopy> = {
     autoHint: '菜单会自动按手机语言打开，也可以随时手动切换。',
     closeMenu: '关闭菜单',
     foodQuickMenuHint: '快速跳转到主要餐食分类。',
-    foodQuickMenuLabel: '餐食快捷菜单',
+    foodQuickMenuLabel: '快速菜单',
     featuredLabel: '推荐菜品',
     heroBody:
       'PDF 菜单已重做为响应式 HTML 页面。菜单会自动按手机语言打开，并支持随时切换语言。',
@@ -712,7 +864,7 @@ export const uiCopy: Record<Locale, UiCopy> = {
     qrBadge: '二维码菜单',
     sectionsLabel: '分类',
     spicyDescription: '辣味菜品通常含有墨西哥辣椒、辣酱或更重的香料风味。',
-    sevenLanguages: '7 种语言',
+    sevenLanguages: '6 种语言',
     vegetarianDescription: '素食菜品不含牛肉、鸡肉或鱼类。',
   },
   ko: {
@@ -721,7 +873,7 @@ export const uiCopy: Record<Locale, UiCopy> = {
     autoHint: '휴대전화 언어에 맞춰 자동으로 열리며 언제든지 변경할 수 있습니다.',
     closeMenu: '메뉴 닫기',
     foodQuickMenuHint: '주요 음식 카테고리로 바로 이동하세요.',
-    foodQuickMenuLabel: '음식 빠른 메뉴',
+    foodQuickMenuLabel: '빠른 메뉴',
     featuredLabel: '추천 메뉴',
     heroBody:
       'PDF 메뉴를 반응형 HTML로 다시 구성했습니다. 휴대전화 언어를 자동 인식하고, 원할 때 바로 언어를 바꿀 수 있습니다.',
@@ -742,7 +894,7 @@ export const uiCopy: Record<Locale, UiCopy> = {
     qrBadge: 'QR 메뉴',
     sectionsLabel: '카테고리',
     spicyDescription: '매운 메뉴에는 할라피뇨, 칠리소스 또는 강한 향신료가 들어갑니다.',
-    sevenLanguages: '7개 언어',
+    sevenLanguages: '6개 언어',
     vegetarianDescription: '채식 메뉴에는 소고기, 닭고기 또는 생선이 들어가지 않습니다.',
   },
   ja: {
@@ -751,7 +903,7 @@ export const uiCopy: Record<Locale, UiCopy> = {
     autoHint: 'スマートフォンの言語で自動表示され、いつでも手動で変更できます。',
     closeMenu: 'メニューを閉じる',
     foodQuickMenuHint: '主な料理カテゴリへすぐ移動できます。',
-    foodQuickMenuLabel: 'フードクイックメニュー',
+    foodQuickMenuLabel: 'クイックメニュー',
     featuredLabel: 'おすすめ',
     heroBody:
       'PDFメニューをレスポンシブなHTMLに再構築しました。端末の言語を自動判別し、必要に応じていつでも切り替えられます。',
@@ -772,7 +924,7 @@ export const uiCopy: Record<Locale, UiCopy> = {
     qrBadge: 'QRメニュー',
     sectionsLabel: 'カテゴリ',
     spicyDescription: '辛口メニューにはハラペーニョ、チリソース、または強めのスパイスが使われます。',
-    sevenLanguages: '7言語対応',
+    sevenLanguages: '6言語対応',
     vegetarianDescription: 'ベジタリアン料理には牛肉、鶏肉、魚は含まれません。',
   },
   it: {
@@ -781,7 +933,7 @@ export const uiCopy: Record<Locale, UiCopy> = {
     autoHint: 'Il menu si apre automaticamente nella lingua del telefono e puo essere cambiato in qualsiasi momento.',
     closeMenu: 'Chiudi menu',
     foodQuickMenuHint: 'Vai subito alle principali categorie di cibo.',
-    foodQuickMenuLabel: 'Menu rapido cibo',
+    foodQuickMenuLabel: 'Menu rapido',
     featuredLabel: 'In evidenza',
     heroBody:
       'Il menu PDF e stato ricostruito come esperienza HTML responsive. Si apre automaticamente nella lingua del telefono, con cambio lingua manuale sempre disponibile.',
@@ -802,7 +954,7 @@ export const uiCopy: Record<Locale, UiCopy> = {
     qrBadge: 'Menu QR',
     sectionsLabel: 'Categorie',
     spicyDescription: 'I piatti piccanti includono jalapeno, salsa chili o una speziatura piu intensa.',
-    sevenLanguages: '7 lingue',
+    sevenLanguages: '6 lingue',
     vegetarianDescription: 'I piatti vegetariani non contengono manzo, pollo o pesce.',
   },
   ru: {
@@ -811,7 +963,7 @@ export const uiCopy: Record<Locale, UiCopy> = {
     autoHint: 'Меню открывается на языке телефона автоматически и может быть изменено в любой момент.',
     closeMenu: 'Закрыть меню',
     foodQuickMenuHint: 'Быстрый переход к основным разделам еды.',
-    foodQuickMenuLabel: 'Быстрое меню еды',
+    foodQuickMenuLabel: 'Быстрое меню',
     featuredLabel: 'Популярное',
     heroBody:
       'PDF-меню переведено в адаптивный HTML-формат. Оно автоматически открывается на языке телефона, а переключение языка всегда доступно вручную.',
@@ -832,8 +984,209 @@ export const uiCopy: Record<Locale, UiCopy> = {
     qrBadge: 'QR-меню',
     sectionsLabel: 'Категории',
     spicyDescription: 'Острые блюда содержат халапеньо, соус чили или более яркие специи.',
-    sevenLanguages: '7 языков',
+    sevenLanguages: '6 языков',
     vegetarianDescription: 'Вегетарианские блюда не содержат говядину, курицу или рыбу.',
+  },
+  es: {
+    actionsLabel: 'Enlaces rápidos',
+    allPricesNote: 'Todos los precios están indicados en liras turcas (TL).',
+    autoHint: 'Se abre automáticamente según el idioma del teléfono y puedes cambiarlo en cualquier momento.',
+    closeMenu: 'Cerrar menú',
+    foodQuickMenuHint: 'Salta directamente a las categorías principales.',
+    foodQuickMenuLabel: 'Menú rápido',
+    featuredLabel: 'Destacados',
+    heroBody:
+      'El menú PDF se ha convertido en una experiencia HTML adaptable. Se abre automáticamente según el idioma del teléfono y permite cambiar de idioma cuando quieras.',
+    heroEyebrow: 'Paprika Cappadocia',
+    heroTitle: 'Menú QR Paprika',
+    languageLabel: 'Idioma',
+    mobileReady: 'HTML adaptable',
+    menuButton: 'Abrir menú',
+    menuDetailsLabel: 'Detalles del menú',
+    menuTitle: 'Navegación e idioma',
+    originalNote: 'El menú está localizado según el idioma seleccionado.',
+    pageDescription:
+      'Menú QR multilingüe y adaptable para Paprika Cappadocia con detección automática del idioma del dispositivo.',
+    pageTitle: 'Menú Paprika',
+    quickCall: 'Llamar',
+    quickDirections: 'Cómo llegar',
+    quickWebsite: 'Sitio web',
+    qrBadge: 'Menú QR',
+    sectionsLabel: 'Categorías',
+    spicyDescription: 'Los platos picantes incluyen jalapeño, salsa chili o un perfil de especias más intenso.',
+    sevenLanguages: '7 idiomas',
+    vegetarianDescription: 'Los platos vegetarianos no contienen carne de res, pollo ni pescado.',
+  },
+}
+
+const manualVisibleDetailTranslations: Record<string, Record<Exclude<Locale, 'tr' | 'en'>, string>> = {
+  'Öküzgözü, Boğazkere': {
+    zh: 'Öküzgözü、Boğazkere 葡萄',
+    ko: '외퀴즈괴쥐와 보아즈케레 품종',
+    ja: 'オクズギョズ、ボアズケレ種',
+    it: 'Vitigni Öküzgözü e Boğazkere',
+    ru: 'Сорта винограда Окюзгёзю и Богазкере',
+    es: 'Uvas Öküzgözü y Boğazkere',
+  },
+  'Emir, Narince': {
+    zh: 'Emir、Narince 葡萄',
+    ko: '에미르, 나린제 품종',
+    ja: 'エミール、ナリンジェ種',
+    it: 'Vitigni Emir e Narince',
+    ru: 'Сорта винограда Эмир и Нариндже',
+    es: 'Uvas Emir y Narince',
+  },
+  'Kalecik Karası': {
+    zh: 'Kalecik Karası 葡萄',
+    ko: '칼레직 카라스 품종',
+    ja: 'カレジック・カラス種',
+    it: 'Vitigno Kalecik Karası',
+    ru: 'Сорт винограда Каледжик Карасы',
+    es: 'Uva Kalecik Karası',
+  },
+  'C. Sauvignon, Öküzgözü, Boğazkere': {
+    zh: '赤霞珠、Öküzgözü、Boğazkere 葡萄',
+    ko: '카베르네 소비뇽, 외퀴즈괴쥐, 보아즈케레 품종',
+    ja: 'カベルネ・ソーヴィニヨン、オクズギョズ、ボアズケレ種',
+    it: 'Cabernet Sauvignon, Öküzgözü e Boğazkere',
+    ru: 'Каберне Совиньон, Окюзгёзю и Богазкере',
+    es: 'Cabernet Sauvignon, Öküzgözü y Boğazkere',
+  },
+  'Pinot Grigio': {
+    zh: '灰皮诺葡萄',
+    ko: '피노 그리지오 품종',
+    ja: 'ピノ・グリージョ種',
+    it: 'Vitigno Pinot Grigio',
+    ru: 'Сорт винограда Пино Гриджио',
+    es: 'Uva Pinot Grigio',
+  },
+  Braga: {
+    zh: 'Braga 葡萄',
+    ko: '브라가 품종',
+    ja: 'ブラガ種',
+    it: 'Vitigno Braga',
+    ru: 'Сорт винограда Брага',
+    es: 'Uva Braga',
+  },
+  'Grenache, Rolle, Cincault, Syrah, Mourvedre': {
+    zh: '歌海娜、侯尔、神索、西拉、慕合怀特葡萄',
+    ko: '그르나슈, 롤, 생소, 시라, 무르베드르 품종',
+    ja: 'グルナッシュ、ロール、サンソー、シラー、ムールヴェードル種',
+    it: 'Grenache, Rolle, Cinsault, Syrah e Mourvèdre',
+    ru: 'Гренаш, Роль, Сенсо, Сира и Мурведр',
+    es: 'Grenache, Rolle, Cinsault, Syrah y Mourvèdre',
+  },
+  'Pinot Noir, Pinot Meunier, Chardonnay': {
+    zh: '黑皮诺、莫尼耶皮诺、霞多丽葡萄',
+    ko: '피노 누아, 피노 뫼니에, 샤르도네 품종',
+    ja: 'ピノ・ノワール、ピノ・ムニエ、シャルドネ種',
+    it: 'Pinot Noir, Pinot Meunier e Chardonnay',
+    ru: 'Пино Нуар, Пино Менье и Шардоне',
+    es: 'Pinot Noir, Pinot Meunier y Chardonnay',
+  },
+  Glera: {
+    zh: '格雷拉葡萄',
+    ko: '글레라 품종',
+    ja: 'グレーラ種',
+    it: 'Vitigno Glera',
+    ru: 'Сорт винограда Глера',
+    es: 'Uva Glera',
+  },
+  'Aperol, sparkling wine, sparkling water': {
+    zh: 'Aperol、起泡葡萄酒、气泡水',
+    ko: '아페롤, 스파클링 와인, 탄산수',
+    ja: 'アペロール、スパークリングワイン、炭酸水',
+    it: 'Aperol, vino spumante e acqua frizzante',
+    ru: 'Aperol, игристое вино и газированная вода',
+    es: 'Aperol, vino espumoso y agua con gas',
+  },
+  'Fresh mint, Bacardi, lemon juice, soda': {
+    zh: '新鲜薄荷、百加得、柠檬汁、苏打水',
+    ko: '생민트, 바카디, 레몬 주스, 소다',
+    ja: 'フレッシュミント、バカルディ、レモンジュース、ソーダ',
+    it: 'Menta fresca, Bacardi, succo di limone e soda',
+    ru: 'Свежая мята, Bacardi, лимонный сок и сода',
+    es: 'Menta fresca, Bacardi, jugo de limón y soda',
+  },
+  'Tequila, Cointreau, lemon juice, syrup': {
+    zh: '龙舌兰、君度、柠檬汁、糖浆',
+    ko: '데킬라, 쿠앵트로, 레몬 주스, 시럽',
+    ja: 'テキーラ、コアントロー、レモンジュース、シロップ',
+    it: 'Tequila, Cointreau, succo di limone e sciroppo',
+    ru: 'Текила, Cointreau, лимонный сок и сироп',
+    es: 'Tequila, Cointreau, jugo de limón y sirope',
+  },
+  'Campari, orange zest, orange juice': {
+    zh: '金巴利、橙皮屑、橙汁',
+    ko: '캄파리, 오렌지 제스트, 오렌지 주스',
+    ja: 'カンパリ、オレンジゼスト、オレンジジュース',
+    it: 'Campari, scorza d’arancia e succo d’arancia',
+    ru: 'Campari, апельсиновая цедра и апельсиновый сок',
+    es: 'Campari, ralladura de naranja y jugo de naranja',
+  },
+  'Tomato paste, chicken, spinach, garlic': {
+    zh: '番茄酱、鸡肉、菠菜、大蒜',
+    ko: '토마토 페이스트, 닭고기, 시금치, 마늘',
+    ja: 'トマトペースト、鶏肉、ほうれん草、にんにく',
+    it: 'Passata di pomodoro, pollo, spinaci e aglio',
+    ru: 'Томатная паста, курица, шпинат и чеснок',
+    es: 'Pasta de tomate, pollo, espinaca y ajo',
+  },
+  'Chicken tenders, french fries, onion rings': {
+    zh: '鸡柳、薯条、洋葱圈',
+    ko: '치킨 텐더, 감자튀김, 어니언 링',
+    ja: 'チキンテンダー、フライドポテト、オニオンリング',
+    it: 'Chicken tenders, patatine fritte e anelli di cipolla',
+    ru: 'Куриные тендерсы, картофель фри и луковые кольца',
+    es: 'Tiras de pollo, papas fritas y aros de cebolla',
+  },
+  '200 gr. chicken fillet, served with rice': {
+    zh: '200克鸡柳，配米饭',
+    ko: '200g 닭가슴살 필레, 밥과 함께 제공',
+    ja: '200gのチキンフィレ、ライス付き',
+    it: '200 g di filetto di pollo servito con riso',
+    ru: '200 г куриного филе, подается с рисом',
+    es: '200 g de filete de pollo, servido con arroz',
+  },
+  '150 gr. lamb meat served with rice': {
+    zh: '150克羊肉，配米饭',
+    ko: '150g 양고기, 밥과 함께 제공',
+    ja: '150gのラム肉、ライス付き',
+    it: '150 g di carne di agnello servita con riso',
+    ru: '150 г баранины, подается с рисом',
+    es: '150 g de cordero, servido con arroz',
+  },
+  'Bolognese sauce, parmesan cheese': {
+    zh: '博洛尼亚肉酱、帕玛森芝士',
+    ko: '볼로네제 소스, 파르메산 치즈',
+    ja: 'ボロネーゼソース、パルメザンチーズ',
+    it: 'Salsa bolognese e parmigiano',
+    ru: 'Соус болоньезе и пармезан',
+    es: 'Salsa boloñesa y queso parmesano',
+  },
+  'Greens, falafel, sauce': {
+    zh: '时蔬、法拉费、酱汁',
+    ko: '채소, 팔라펠, 소스',
+    ja: 'グリーン、ファラフェル、ソース',
+    it: 'Verdure, falafel e salsa',
+    ru: 'Зелень, фалафель и соус',
+    es: 'Hojas verdes, falafel y salsa',
+  },
+  'Chocolate cake': {
+    zh: '巧克力蛋糕',
+    ko: '초콜릿 케이크',
+    ja: 'チョコレートケーキ',
+    it: 'Torta al cioccolato',
+    ru: 'Шоколадный торт',
+    es: 'Pastel de chocolate',
+  },
+  'Served in summer': {
+    zh: '夏季供应',
+    ko: '여름에 제공됩니다',
+    ja: '夏季限定',
+    it: 'Servito in estate',
+    ru: 'Подается летом',
+    es: 'Se sirve en verano',
   },
 }
 
@@ -905,7 +1258,7 @@ export const sections: MenuSection[] = [
               tr: 'Kapadokya Yerel Kırmızı',
               en: 'Cappadocia Local Red',
               zh: '卡帕多奇亚本地红葡萄酒',
-              ko: '카파도키아 로컬 레드 와인',
+              ko: '카파도키아 지역 레드 와인',
               ja: 'カッパドキア産赤ワイン',
               it: 'Rosso locale della Cappadocia',
               ru: 'Местное красное вино Каппадокии',
@@ -2751,10 +3104,10 @@ export function resolveLocale(input?: readonly string[] | string | null): Locale
 
     if (normalized.startsWith('tr')) return 'tr'
     if (normalized.startsWith('zh')) return 'zh'
-    if (normalized.startsWith('ko')) return 'ko'
     if (normalized.startsWith('ja')) return 'ja'
     if (normalized.startsWith('it')) return 'it'
     if (normalized.startsWith('ru')) return 'ru'
+    if (normalized.startsWith('es')) return 'es'
     if (normalized.startsWith('en')) return 'en'
   }
 
@@ -2773,6 +3126,13 @@ export function resolveItemDetails(
 
   const english = itemDetails.en
 
+  const manualVisibleTranslation =
+    english && locale !== 'tr' && locale !== 'en'
+      ? manualVisibleDetailTranslations[english]?.[locale]
+      : undefined
+
+  if (manualVisibleTranslation) return manualVisibleTranslation
+
   if (english && detailTranslationsByEnglish[english]?.[locale]) {
     return detailTranslationsByEnglish[english][locale]
   }
@@ -2780,12 +3140,60 @@ export function resolveItemDetails(
   if (locale === 'tr') return itemDetails.tr ?? english
   if (locale === 'en') return english ?? itemDetails.tr
 
-  return undefined
+  return itemDetails[locale] ?? english ?? itemDetails.tr
 }
 
 export function resolveItemName(
   name: MenuItem['name'],
   locale: Locale,
 ): string {
+  if (locale === 'es' && name.en) {
+    return spanishTextOverridesByEnglish[name.en] ?? name.es
+  }
+
   return name[locale]
+}
+
+export function resolveLocalizedText(
+  value: Record<Locale, string>,
+  locale: Locale,
+): string {
+  if (locale === 'es' && value.en) {
+    return spanishTextOverridesByEnglish[value.en] ?? value.es
+  }
+
+  return value[locale]
+}
+
+const priceTokenTranslations = {
+  GLS: {
+    tr: 'Kadeh',
+    en: 'Glass',
+    zh: '杯',
+    ko: '잔',
+    ja: 'グラス',
+    it: 'Calice',
+    ru: 'Бокал',
+    es: 'Copa',
+  },
+  Bottle: {
+    tr: 'Şişe',
+    en: 'Bottle',
+    zh: '瓶',
+    ko: '병',
+    ja: 'ボトル',
+    it: 'Bottiglia',
+    ru: 'Бутылка',
+    es: 'Botella',
+  },
+} as const satisfies Record<string, Record<Locale, string>>
+
+export function resolvePrice(price: string, locale: Locale): string {
+  let value = price
+
+  for (const [token, translations] of Object.entries(priceTokenTranslations)) {
+    value = value.replaceAll(token, translations[locale])
+  }
+
+  return value
 }

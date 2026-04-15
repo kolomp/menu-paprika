@@ -24,32 +24,32 @@ const localeSamples = [
   {
     buttonLabel: /中文/,
     menuButton: '打开菜单',
-    quickMenuLabel: '餐食快捷菜单',
+    quickMenuLabel: '快速菜单',
     samples: ['Kocabag Leo\'s 红葡萄酒', '加切达芝士', '意式浓缩', '亨德里克金酒 · 5 cl'],
-  },
-  {
-    buttonLabel: /한국어/,
-    menuButton: '메뉴 열기',
-    quickMenuLabel: '음식 빠른 메뉴',
-    samples: ['코자바그 레오스 레드', '체더 치즈 추가', '카푸치노', '헨드릭스 진 · 5 cl'],
   },
   {
     buttonLabel: /日本語/,
     menuButton: 'メニューを開く',
-    quickMenuLabel: 'フードクイックメニュー',
+    quickMenuLabel: 'クイックメニュー',
     samples: ['コジャバグ レオズ レッド', 'チェダーチーズ追加', 'エスプレッソ', 'ヘンドリックス ジン · 5 cl'],
   },
   {
     buttonLabel: /Italiano/,
     menuButton: 'Apri menu',
-    quickMenuLabel: 'Menu rapido cibo',
+    quickMenuLabel: 'Menu rapido',
     samples: ['Kocabag Leo\'s Rosso', 'Cheddar extra', 'Martini Prosecco', "Gin Hendrick's · 5 cl"],
   },
   {
     buttonLabel: /Русский/,
     menuButton: 'Открыть меню',
-    quickMenuLabel: 'Быстрое меню еды',
+    quickMenuLabel: 'Быстрое меню',
     samples: ['Kocabag Leo\'s Красное', 'Дополнительный чеддер', 'Эспрессо', 'Егермейстер · 5 cl'],
+  },
+  {
+    buttonLabel: /Español/,
+    menuButton: 'Abrir menú',
+    quickMenuLabel: 'Menú rápido',
+    samples: ["Kocabag Leo's Tinto", 'Extra de queso cheddar', 'Espresso', "Ginebra Hendrick's · 5 cl"],
   },
 ] as const
 
@@ -73,7 +73,7 @@ describe('Paprika menu', () => {
 
     expect(screen.getByRole('link', { name: 'paprika' })).toBeInTheDocument()
     expect(screen.getByRole('button', { name: 'Open menu' })).toBeInTheDocument()
-    expect(screen.getByText('Food Quick Menu')).toBeInTheDocument()
+    expect(screen.getByText('Quick Menu')).toBeInTheDocument()
     expect(screen.getAllByText('Language')[0]).toBeInTheDocument()
     expect(
       screen.getByRole('heading', { level: 2, name: 'Bar Selection' }),
@@ -94,6 +94,25 @@ describe('Paprika menu', () => {
     )
   })
 
+  it('falls back to English when Korean is detected', () => {
+    setNavigatorLanguages(['ko-KR'])
+
+    render(<App />)
+
+    expect(screen.getByRole('button', { name: 'Open menu' })).toBeInTheDocument()
+    expect(screen.getByText('Quick Menu')).toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: /한국어/ })).not.toBeInTheDocument()
+  })
+
+  it('uses the phone language when Spanish is detected', () => {
+    setNavigatorLanguages(['es-ES'])
+
+    render(<App />)
+
+    expect(screen.getByRole('button', { name: 'Abrir menú' })).toBeInTheDocument()
+    expect(screen.getByText('Menú rápido')).toBeInTheDocument()
+  })
+
   it('switches the menu language manually', () => {
     setNavigatorLanguages(['en-US'])
 
@@ -104,7 +123,7 @@ describe('Paprika menu', () => {
     fireEvent.click(within(drawer).getByRole('button', { name: /中文/ }))
 
     expect(screen.getByRole('button', { name: '打开菜单' })).toBeInTheDocument()
-    expect(screen.getByText('餐食快捷菜单')).toBeInTheDocument()
+    expect(screen.getByText('快速菜单')).toBeInTheDocument()
     expect(screen.getByRole('heading', { level: 2, name: '酒吧精选' })).toBeInTheDocument()
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument()
   })

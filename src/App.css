@@ -163,7 +163,6 @@
   color: var(--color-ink);
 }
 
-.menu-item__secondary,
 .menu-item__details,
 .menu-footer p,
 .drawer__note {
@@ -331,10 +330,6 @@
 
 .menu-item__copy h4 {
   font-size: 1.06rem;
-}
-
-.menu-item__secondary {
-  font-size: 0.86rem;
 }
 
 .menu-item__price {
