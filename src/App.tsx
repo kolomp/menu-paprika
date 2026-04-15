@@ -1,4 +1,4 @@
-import { startTransition, useDeferredValue, useEffect, useState } from 'react'
+import { startTransition, useDeferredValue, useEffect, useRef, useState, type CSSProperties } from 'react'
 import {
   badgeDescriptions,
   badgeLabels,
@@ -110,6 +110,7 @@ function readStoredLocale(): Locale | null {
 }
 
 function App() {
+  const stickyStackRef = useRef<HTMLDivElement | null>(null)
   const [locale, setLocale] = useState<Locale>(() => {
     const stored = readStoredLocale()
 
@@ -123,6 +124,7 @@ function App() {
   const [activeSectionId, setActiveSectionId] = useState(
     sections.find((section) => section.id !== 'bar')?.id ?? sections[0].id,
   )
+  const [stickyStackHeight, setStickyStackHeight] = useState(0)
 
   const deferredLocale = useDeferredValue(locale)
   const copy = uiCopy[deferredLocale]
@@ -197,6 +199,35 @@ function App() {
     }
   }, [])
 
+  useEffect(() => {
+    if (typeof window === 'undefined') return
+
+    const measure = () => {
+      const nextHeight = stickyStackRef.current?.offsetHeight ?? 0
+      setStickyStackHeight(nextHeight)
+    }
+
+    measure()
+
+    const resizeObserver =
+      typeof ResizeObserver !== 'undefined' && stickyStackRef.current
+        ? new ResizeObserver(() => {
+            measure()
+          })
+        : null
+
+    if (resizeObserver && stickyStackRef.current) {
+      resizeObserver.observe(stickyStackRef.current)
+    }
+
+    window.addEventListener('resize', measure)
+
+    return () => {
+      resizeObserver?.disconnect()
+      window.removeEventListener('resize', measure)
+    }
+  }, [deferredLocale])
+
   const closeMenu = () => {
     setIsMenuOpen(false)
   }
@@ -207,6 +238,10 @@ function App() {
     })
     closeMenu()
   }
+
+  const menuAppStyle = {
+    '--sticky-stack-offset': `${stickyStackHeight}px`,
+  } as CSSProperties
 
   return (
     <div className="menu-shell">
@@ -309,71 +344,73 @@ function App() {
         </aside>
       ) : null}
 
-      <div className="menu-app">
-        <header className="topbar">
-          <a href="#bar" className="brandmark">
-            paprika
-          </a>
+      <div className="menu-app" style={menuAppStyle}>
+        <div className="sticky-stack" ref={stickyStackRef}>
+          <header className="topbar">
+            <a href="#bar" className="brandmark">
+              paprika
+            </a>
 
-          <div className="topbar__actions">
-            <span className="topbar__badge">{copy.qrBadge}</span>
-            <span className="topbar__locale">{localeLabels[deferredLocale]}</span>
-            <button
-              type="button"
-              className="icon-button"
-              aria-label={copy.menuButton}
-              aria-controls="menu-drawer"
-              aria-expanded={isMenuOpen}
-              onClick={() => setIsMenuOpen(true)}
-            >
-              <MenuIcon />
-            </button>
-          </div>
-        </header>
-
-        <section className="sticky-toolbar">
-          <div className="sticky-toolbar__group">
-            <p className="sticky-toolbar__label">{copy.languageLabel}</p>
-            <div className="sticky-toolbar__languages" role="group" aria-label={copy.languageLabel}>
-              {supportedLocales.map((localeOption) => (
-                <button
-                  key={localeOption}
-                  type="button"
-                  className={
-                    localeOption === deferredLocale
-                      ? 'language-chip language-chip--active'
-                      : 'language-chip'
-                  }
-                  aria-pressed={localeOption === deferredLocale}
-                  aria-label={localeNames[localeOption]}
-                  onClick={() => switchLocale(localeOption)}
-                >
-                  <strong>{localeLabels[localeOption]}</strong>
-                  <span>{localeNames[localeOption]}</span>
-                </button>
-              ))}
+            <div className="topbar__actions">
+              <span className="topbar__badge">{copy.qrBadge}</span>
+              <span className="topbar__locale">{localeLabels[deferredLocale]}</span>
+              <button
+                type="button"
+                className="icon-button"
+                aria-label={copy.menuButton}
+                aria-controls="menu-drawer"
+                aria-expanded={isMenuOpen}
+                onClick={() => setIsMenuOpen(true)}
+              >
+                <MenuIcon />
+              </button>
             </div>
-          </div>
+          </header>
 
-          <div className="sticky-toolbar__group">
-            <p className="sticky-toolbar__label">{copy.foodQuickMenuLabel}</p>
-            <nav className="food-quick-nav" aria-label={copy.foodQuickMenuLabel}>
-              {foodSections.map((section) => (
-                <a
-                  key={section.id}
-                  href={`#${section.id}`}
-                  className={
-                    section.id === activeSectionId
-                      ? 'food-quick-nav__link food-quick-nav__link--active'
-                      : 'food-quick-nav__link'
-                  }
-                >
-                  {resolveLocalizedText(section.title, deferredLocale)}
-                </a>
-              ))}
-            </nav>
-          </div>
-        </section>
+          <section className="sticky-toolbar">
+            <div className="sticky-toolbar__group">
+              <p className="sticky-toolbar__label">{copy.languageLabel}</p>
+              <div className="sticky-toolbar__languages" role="group" aria-label={copy.languageLabel}>
+                {supportedLocales.map((localeOption) => (
+                  <button
+                    key={localeOption}
+                    type="button"
+                    className={
+                      localeOption === deferredLocale
+                        ? 'language-chip language-chip--active'
+                        : 'language-chip'
+                    }
+                    aria-pressed={localeOption === deferredLocale}
+                    aria-label={localeNames[localeOption]}
+                    onClick={() => switchLocale(localeOption)}
+                  >
+                    <strong>{localeLabels[localeOption]}</strong>
+                    <span>{localeNames[localeOption]}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            <div className="sticky-toolbar__group">
+              <p className="sticky-toolbar__label">{copy.foodQuickMenuLabel}</p>
+              <nav className="food-quick-nav" aria-label={copy.foodQuickMenuLabel}>
+                {foodSections.map((section) => (
+                  <a
+                    key={section.id}
+                    href={`#${section.id}`}
+                    className={
+                      section.id === activeSectionId
+                        ? 'food-quick-nav__link food-quick-nav__link--active'
+                        : 'food-quick-nav__link'
+                    }
+                  >
+                    {resolveLocalizedText(section.title, deferredLocale)}
+                  </a>
+                ))}
+              </nav>
+            </div>
+          </section>
+        </div>
 
         <main className="section-stack">
           {sections.map((section) => (
